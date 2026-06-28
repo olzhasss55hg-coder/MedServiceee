@@ -1,6 +1,7 @@
 import uuid
 import datetime
-from sqlalchemy import Boolean, Column, String, Float, DateTime, Enum as SQLAlchemyEnum, Numeric, Integer, ForeignKey
+import json
+from sqlalchemy import Boolean, Column, String, Float, DateTime, Enum as SQLAlchemyEnum, Numeric, Integer, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
@@ -30,6 +31,7 @@ class Clinic(Base):
     longitude = Column(Float, nullable=True)
     rating = Column(Float, default=0.0)
     reviews_count = Column(Integer, default=0)
+    has_online_booking = Column(Boolean, default=True)
 
     prices = relationship("Price", back_populates="clinic")
     subscriptions = relationship("UserSubscription", back_populates="clinic")
@@ -59,6 +61,7 @@ class Service(Base):
     name_raw = Column(String, index=True)
     name_norm = Column(String, index=True, nullable=True)
     category = Column(SQLAlchemyEnum(CategoryEnum), index=True)
+    is_matched = Column(Boolean, default=True)
 
     prices = relationship("Price", back_populates="service")
     subscriptions = relationship("UserSubscription", back_populates="service")
@@ -112,3 +115,21 @@ class UserSubscription(Base):
     user = relationship("User", back_populates="subscriptions")
     service = relationship("Service", back_populates="subscriptions")
     clinic = relationship("Clinic", back_populates="subscriptions")
+
+class RawData(Base):
+    __tablename__ = "raw_data"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    source_name = Column(String, index=True)
+    source_url = Column(String)
+    data_payload = Column(Text) # JSON string
+    parsed_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class ParserLogs(Base):
+    __tablename__ = "parser_logs"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    source_name = Column(String, index=True)
+    status = Column(String) # "SUCCESS", "FAILED"
+    message = Column(Text, nullable=True)
+    executed_at = Column(DateTime, default=datetime.datetime.utcnow)

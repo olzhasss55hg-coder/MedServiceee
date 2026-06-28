@@ -19,6 +19,8 @@ interface Clinic {
   city: string
   address: string
   source_url: string
+  rating?: number
+  has_online_booking?: boolean
 }
 
 interface Service {
@@ -78,10 +80,14 @@ function SearchPageContent() {
   const [minPrice, setMinPrice] = useState<number | null>(null)
   const [maxPrice, setMaxPrice] = useState<number | null>(null)
 
+  const [minRating, setMinRating] = useState<number | null>(null)
+  const [onlineBooking, setOnlineBooking] = useState<boolean | null>(null)
+  const [sortBy, setSortBy] = useState<string>("")
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const fetchResults = async (q: string, c: string) => {
+  const fetchResults = async (q: string, c: string, minR: number|null, onB: boolean|null, sBy: string) => {
     if (!q || q.length < 2) {
       setResults([])
       return
@@ -89,7 +95,12 @@ function SearchPageContent() {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(q)}&city=${encodeURIComponent(c)}`)
+      let url = `${API_URL}/api/search?q=${encodeURIComponent(q)}&city=${encodeURIComponent(c)}`
+      if (minR !== null) url += `&min_rating=${minR}`
+      if (onB !== null) url += `&online_booking=${onB}`
+      if (sBy) url += `&sort_by=${sBy}`
+      
+      const res = await fetch(url)
       if (!res.ok) {
         throw new Error("Ошибка при поиске")
       }
@@ -103,8 +114,8 @@ function SearchPageContent() {
   }
 
   useEffect(() => {
-    fetchResults(initialQuery, initialCity)
-  }, [initialQuery, initialCity])
+    fetchResults(initialQuery, initialCity, minRating, onlineBooking, sortBy)
+  }, [initialQuery, initialCity, minRating, onlineBooking, sortBy])
 
   const handleSearch = () => {
     if (searchQuery.trim().length >= 2) {
@@ -246,6 +257,35 @@ function SearchPageContent() {
                 </div>
               </div>
 
+              {/* Rating Filter */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-muted-foreground">{locale === 'en' ? 'Rating' : (locale === 'kk' ? 'Рейтинг' : 'Рейтинг')}</h3>
+                <div className="relative flex items-center bg-black/5 rounded-xl h-12 hover:bg-black/10 transition-colors">
+                  <Star className="w-4 h-4 text-primary absolute left-3 pointer-events-none" />
+                  <select
+                    value={minRating || ""}
+                    onChange={(e) => setMinRating(e.target.value ? parseFloat(e.target.value) : null)}
+                    className="w-full h-full bg-transparent pl-9 pr-8 appearance-none border-none outline-none text-sm font-medium cursor-pointer"
+                  >
+                    <option value="">{locale === 'en' ? 'Any' : (locale === 'kk' ? 'Кез келген' : 'Любой')}</option>
+                    <option value="4.0">4.0+</option>
+                    <option value="4.5">4.5+</option>
+                  </select>
+                  <svg className="w-4 h-4 text-muted-foreground absolute right-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+
+              {/* Online Booking Filter */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${onlineBooking === true ? 'border-primary bg-primary' : 'border-gray-300 group-hover:border-primary'}`}>
+                    <input type="checkbox" className="hidden" checked={onlineBooking === true} onChange={(e) => setOnlineBooking(e.target.checked ? true : null)} />
+                    {onlineBooking === true && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                  <span className="text-sm font-semibold text-muted-foreground">{locale === 'en' ? 'Online Booking' : (locale === 'kk' ? 'Онлайн жазылу' : 'Онлайн запись')}</span>
+                </label>
+              </div>
+
               <Button className="w-full mt-4" onClick={applyPriceFilter}>{t('search.apply')}</Button>
             </div>
           </aside>
@@ -268,10 +308,25 @@ function SearchPageContent() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <h1 className="text-2xl font-bold text-foreground">
                 {locale === 'en' ? 'Search Results' : (locale === 'kk' ? 'Іздеу нәтижелері' : 'Результаты поиска')} {initialQuery && (locale === 'en' ? `for "${initialQuery}"` : (locale === 'kk' ? `«${initialQuery}» бойынша` : `по запросу «${initialQuery}»`))} <span className="text-muted-foreground font-normal text-lg">({filteredResults.length})</span>
               </h1>
+              
+              {/* Sort By Select */}
+              <div className="relative flex items-center bg-white border border-black/10 rounded-xl h-10 hover:border-primary/50 transition-colors shrink-0 min-w-[200px]">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full h-full bg-transparent pl-4 pr-8 appearance-none border-none outline-none text-sm font-medium cursor-pointer"
+                >
+                  <option value="">{locale === 'en' ? 'Sort by (Default)' : (locale === 'kk' ? 'Сұрыптау (Үнсіз)' : 'Сортировка (По умолчанию)')}</option>
+                  <option value="price_asc">{locale === 'en' ? 'Price: Low to High' : (locale === 'kk' ? 'Баға: Өсуі бойынша' : 'Цена: По возрастанию')}</option>
+                  <option value="price_desc">{locale === 'en' ? 'Price: High to Low' : (locale === 'kk' ? 'Баға: Кемуі бойынша' : 'Цена: По убыванию')}</option>
+                  <option value="date_desc">{locale === 'en' ? 'Date: Newest First' : (locale === 'kk' ? 'Күні: Алдымен жаңа' : 'Дата: Сначала новые')}</option>
+                </select>
+                <svg className="w-4 h-4 text-muted-foreground absolute right-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
             </div>
 
             {loading ? (
@@ -328,6 +383,8 @@ function SearchPageContent() {
                         price={result.best_offer_price}
                         sourceUrl={result.best_offer_clinic.source_url}
                         lastUpdatedAt={result.last_updated_at}
+                        rating={result.best_offer_clinic.rating}
+                        hasOnlineBooking={result.best_offer_clinic.has_online_booking}
                       />
 
                       <div className="pt-4 mt-4 border-t border-black/5">

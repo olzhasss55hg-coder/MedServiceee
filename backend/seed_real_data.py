@@ -140,7 +140,8 @@ def generate_clinics(num=None):
             "latitude": rc["lat"],
             "longitude": rc["lng"],
             "rating": rating,
-            "reviews_count": reviews_count
+            "reviews_count": reviews_count,
+            "has_online_booking": random.choice([True, True, False]) # Mostly true
         })
     return clinics
 

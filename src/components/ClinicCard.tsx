@@ -16,9 +16,11 @@ interface ClinicProps {
   price: number
   sourceUrl: string
   lastUpdatedAt?: string
+  rating?: number
+  hasOnlineBooking?: boolean
 }
 
-export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, lastUpdatedAt }: ClinicProps) {
+export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, lastUpdatedAt, rating, hasOnlineBooking }: ClinicProps) {
   const { t, locale } = useTranslation();
   const [showHistory, setShowHistory] = useState(false);
   const [showDoctors, setShowDoctors] = useState(false);
@@ -52,7 +54,20 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
     <GlassCard className="p-5 flex flex-col hover:shadow-lg transition-all border-black/5 hover:border-primary/20">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between w-full">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-foreground mb-1">{clinicName}</h3>
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h3 className="text-xl font-bold text-foreground">{clinicName}</h3>
+            {rating && (
+              <div className="flex items-center gap-1 bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded text-sm font-semibold">
+                <Star className="w-3.5 h-3.5 fill-current" /> {rating.toFixed(1)}
+              </div>
+            )}
+            {hasOnlineBooking && (
+              <div className="flex items-center gap-1 bg-green-500/10 text-green-600 px-2 py-0.5 rounded text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Онлайн запись
+              </div>
+            )}
+          </div>
           <div className="flex items-center text-muted-foreground text-sm mb-3">
             <MapPin className="w-4 h-4 mr-1" />
             {address}

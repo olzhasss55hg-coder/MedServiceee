@@ -8,7 +8,7 @@ from typing import List, Optional
 import os
 from contextlib import asynccontextmanager
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from jose import JWTError, jwt
 
 import models, schemas, auth
@@ -105,7 +105,14 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
 
 # --- Search API ---
 @app.get("/api/search", response_model=List[schemas.UnifiedSearchResult])
-def search_services(q: str = Query(..., min_length=2), city: Optional[str] = None, db: Session = Depends(get_db)):
+def search_services(
+    q: str = Query(..., min_length=2),
+    city: Optional[str] = None,
+    min_rating: Optional[float] = None,
+    online_booking: Optional[bool] = None,
+    sort_by: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
     try:
         search_res = meili_client.index('services').search(q, {'limit': 20})
         hits = search_res.get('hits', [])
@@ -113,39 +120,73 @@ def search_services(q: str = Query(..., min_length=2), city: Optional[str] = Non
         raise HTTPException(status_code=500, detail=f"Meilisearch error: {str(e)}")
         
     results = []
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    
     for hit in hits:
         service_id = hit['id']
         service = db.query(models.Service).filter(models.Service.id == service_id).first()
         if not service:
             continue
             
-        prices = db.query(models.Price).filter(models.Price.service_id == service_id).all()
-        if city:
-            prices = [p for p in prices if p.clinic.city == city]
+        # Join with Clinic to apply clinic-level filters in DB query if possible, or filter in Python
+        prices = db.query(models.Price).filter(
+            models.Price.service_id == service_id,
+            models.Price.parsed_at >= thirty_days_ago
+        ).all()
+        
+        filtered_prices = []
+        for p in prices:
+            # Apply city filter
+            if city and p.clinic.city != city:
+                continue
+            # Apply rating filter
+            if min_rating and (p.clinic.rating or 0) < min_rating:
+                continue
+            # Apply online booking filter
+            if online_booking is not None and p.clinic.has_online_booking != online_booking:
+                continue
+            filtered_prices.append(p)
             
-        if not prices:
+        if not filtered_prices:
             continue
             
-        prices_list = [p.price_kzt for p in prices if p.price_kzt]
+        prices_list = [p.price_kzt for p in filtered_prices if p.price_kzt]
         if not prices_list:
             continue
             
         min_price = min(prices_list)
         avg_price = sum(prices_list) / len(prices_list)
         
-        best_price_obj = min(prices, key=lambda p: p.price_kzt)
+        best_price_obj = min(filtered_prices, key=lambda p: p.price_kzt)
         
         results.append(schemas.UnifiedSearchResult(
             service=service,
             avg_price=float(avg_price),
             min_price=float(min_price),
-            clinics_count=len(prices),
+            clinics_count=len(filtered_prices),
             best_offer_clinic=best_price_obj.clinic,
             best_offer_price=float(best_price_obj.price_kzt),
             last_updated_at=best_price_obj.parsed_at
         ))
         
+    # Sorting logic
+    if sort_by == 'price_asc':
+        results.sort(key=lambda x: x.min_price)
+    elif sort_by == 'price_desc':
+        results.sort(key=lambda x: x.min_price, reverse=True)
+    elif sort_by == 'date_desc':
+        results.sort(key=lambda x: x.last_updated_at, reverse=True)
+        
     return results
+
+@app.post("/api/admin/trigger-parser")
+def trigger_parser():
+    import threading
+    from scheduler_tasks import run_parsers_and_index
+    # Run in background to not block the API
+    t = threading.Thread(target=run_parsers_and_index)
+    t.start()
+    return {"message": "Parsers started in background."}
 
 @app.post("/api/chat")
 def chat_with_ai(req: ChatRequest, db: Session = Depends(get_db)):
