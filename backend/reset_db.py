@@ -1,19 +1,29 @@
+"""Database reset and re-seed utility script."""
+
 from database import engine, Base
 import models
 import seed_real_data
 import search
+from logger import db_logger
 
-def reset():
-    print("Dropping all tables...")
+
+def reset() -> None:
+    """Drop all tables, recreate them, seed data, and re-index search."""
+    db_logger.info("Dropping all tables...")
     Base.metadata.drop_all(bind=engine)
-    print("Creating all tables...")
+
+    db_logger.info("Creating all tables...")
     Base.metadata.create_all(bind=engine)
-    print("Seeding database...")
+
+    db_logger.info("Seeding database with real Kazakhstan data...")
     seed_real_data.seed_db()
-    print("Re-indexing meilisearch...")
+
+    db_logger.info("Re-indexing MeiliSearch...")
     search.init_meilisearch()
     search.index_all_services()
-    print("Done!")
+
+    db_logger.info("Database reset completed successfully!")
+
 
 if __name__ == "__main__":
     reset()

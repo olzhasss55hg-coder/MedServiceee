@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { API_URL } from "@/lib/api";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function LoginPage() {
       formData.append("username", email); // OAuth2 expects username
       formData.append("password", password);
 
-      const res = await fetch("http://localhost:8000/api/auth/login", {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { API_URL } from "@/lib/api";
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -28,7 +29,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/auth/register", {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -44,7 +45,7 @@ export default function RegisterPage() {
       formData.append("username", email);
       formData.append("password", password);
 
-      const loginRes = await fetch("http://localhost:8000/api/auth/token", {
+      const loginRes = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),

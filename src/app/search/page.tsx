@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { ClinicCard } from "@/components/ClinicCard"
 import { useTranslation } from "@/i18n/LanguageContext"
+import { API_URL } from "@/lib/api"
 
 interface Clinic {
   id: string
@@ -88,7 +89,7 @@ function SearchPageContent() {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch(`http://localhost:8000/api/search?q=${encodeURIComponent(q)}&city=${encodeURIComponent(c)}`)
+      const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(q)}&city=${encodeURIComponent(c)}`)
       if (!res.ok) {
         throw new Error("Ошибка при поиске")
       }

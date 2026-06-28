@@ -5,6 +5,7 @@ import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles } from "lucide-rea
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { API_URL } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -43,7 +44,7 @@ export function AIChatWidget() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/chat", {
+      const res = await fetch(`${API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage })

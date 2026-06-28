@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { DoctorProfileModal } from "@/components/DoctorProfileModal";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { API_URL } from "@/lib/api";
 
 export default function ClinicsPage() {
   const { t, locale } = useTranslation();
@@ -28,7 +29,7 @@ export default function ClinicsPage() {
     if (!clinicDoctors[clinicId]) {
       setLoadingDoctors(prev => ({ ...prev, [clinicId]: true }));
       try {
-        const res = await fetch(`http://localhost:8000/api/clinics/${clinicId}`);
+        const res = await fetch(`${API_URL}/api/clinics/${clinicId}`);
         if (res.ok) {
           const data = await res.json();
           setClinicDoctors(prev => ({ ...prev, [clinicId]: data.doctors || [] }));
@@ -44,7 +45,7 @@ export default function ClinicsPage() {
     async function fetchClinics() {
       setLoading(true);
       try {
-        const url = selectedCity ? `http://localhost:8000/api/clinics?city=${encodeURIComponent(selectedCity)}` : "http://localhost:8000/api/clinics";
+        const url = selectedCity ? `${API_URL}/api/clinics?city=${encodeURIComponent(selectedCity)}` : `${API_URL}/api/clinics`;
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();

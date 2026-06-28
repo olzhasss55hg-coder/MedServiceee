@@ -1,3 +1,5 @@
+"""MedServicePrice API — Main application entry point."""
+
 from fastapi import FastAPI, Depends, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -15,6 +17,7 @@ import meilisearch
 from scheduler_tasks import start_scheduler, stop_scheduler
 import chat_ai
 from pydantic import BaseModel
+from logger import api_logger
 
 class ChatRequest(BaseModel):
     message: str
@@ -146,11 +149,12 @@ def search_services(q: str = Query(..., min_length=2), city: Optional[str] = Non
 
 @app.post("/api/chat")
 def chat_with_ai(req: ChatRequest, db: Session = Depends(get_db)):
+    """Process a user message through the AI chat assistant."""
     try:
         reply = chat_ai.generate_ai_response(req.message, db)
         return {"reply": reply}
     except Exception as e:
-        print("Chat API Error:", e)
+        api_logger.error("Chat API Error: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail="AI Error")
 
 # --- Clinics & Services API ---

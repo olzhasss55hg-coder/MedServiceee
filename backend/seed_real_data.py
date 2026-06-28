@@ -1,9 +1,12 @@
+"""Database seeding script with real Kazakhstan medical clinic data."""
+
 import random
 from database import SessionLocal
 from models import Clinic, Service, Price, PriceHistory, CategoryEnum, CurrencyEnum, Doctor
 from datetime import datetime
 import json
 import uuid
+from logger import db_logger
 
 # Base data for generation
 CITIES = {
@@ -173,7 +176,7 @@ def generate_services():
 def seed_db():
     db = SessionLocal()
     try:
-        print("Starting MASSIVE real data seed for Kazakhstan MVP...")
+        db_logger.info("Starting MASSIVE real data seed for Kazakhstan MVP...")
         
         clinics_data = generate_clinics(30)
         clinic_objects = []
@@ -186,7 +189,7 @@ def seed_db():
         for c in clinic_objects:
             db.refresh(c)
             
-        print(f"Added {len(clinic_objects)} clinics across Kazakhstan.")
+        db_logger.info("Added %d clinics across Kazakhstan.", len(clinic_objects))
         
         # Add Doctors for each clinic
         total_doctors = 0
@@ -240,7 +243,7 @@ def seed_db():
                     db.add(doctor)
                     total_doctors += 1
         db.commit()
-        print(f"Added {total_doctors} doctors across all clinics.")
+        db_logger.info("Added %d doctors across all clinics.", total_doctors)
 
         services_data = generate_services()
         total_prices = 0
@@ -269,8 +272,8 @@ def seed_db():
                 total_prices += 1
                 
         db.commit()
-        print(f"Added {len(services_data)} unique services.")
-        print(f"Generated {total_prices} price combinations.")
+        db_logger.info("Added %d unique services.", len(services_data))
+        db_logger.info("Generated %d price combinations.", total_prices)
         
     finally:
         db.close()

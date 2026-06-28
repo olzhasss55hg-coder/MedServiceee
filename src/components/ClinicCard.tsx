@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/ui/GlassCard"
 import PriceChart from "@/components/ui/PriceChart"
 import { DoctorProfileModal } from "@/components/DoctorProfileModal"
 import { useTranslation } from "@/i18n/LanguageContext"
+import { API_URL } from "@/lib/api"
 
 interface ClinicProps {
   clinicId?: string
@@ -29,7 +30,7 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
     if (!showDoctors && doctors.length === 0 && clinicId) {
       setLoadingDoctors(true);
       try {
-        const res = await fetch(`http://localhost:8000/api/clinics/${clinicId}`);
+        const res = await fetch(`${API_URL}/api/clinics/${clinicId}`);
         if (res.ok) {
           const data = await res.json();
           setDoctors(data.doctors || []);

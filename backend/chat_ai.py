@@ -1,9 +1,12 @@
+"""AI Chat Assistant module with Gemini Pro integration and intelligent fallback."""
+
 import os
 import re
 from sqlalchemy.orm import Session
 import models
 import meilisearch
 import google.generativeai as genai
+from logger import ai_logger
 
 MEILI_URL = os.getenv("MEILI_URL", "http://meilisearch:7700")
 MEILI_MASTER_KEY = os.getenv("MEILI_MASTER_KEY", "masterKey123")
@@ -159,7 +162,7 @@ def ask_gemini(message: str, db: Session) -> str:
         response = model.generate_content(full_prompt)
         return response.text
     except Exception as e:
-        print("Gemini Error:", e)
+        ai_logger.error("Gemini API Error: %s", e, exc_info=True)
         return "🤖 Кешіріңіз, AI серверінде қате кетті. Кейінірек қайталап көріңіз. (Error connecting to Gemini API)"
 
 import requests
@@ -218,6 +221,6 @@ def generate_ai_response(message: str, db: Session) -> str:
         resp = requests.post("https://text.pollinations.ai/", json={"messages": messages, "model": "openai"}, timeout=10)
         if resp.status_code == 200: return resp.text
     except Exception as e:
-        print("Pollinations Error:", e)
+        ai_logger.warning("Pollinations fallback error: %s", e)
     
     return "Сұрағыңызды нақтылай түсіңізші. Қандай қызмет немесе клиника іздеп жүрсіз?" if lang == "kz" else "Уточните ваш запрос. Какую услугу или клинику вы ищете?"

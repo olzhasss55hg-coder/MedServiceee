@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { DoctorProfileModal } from "@/components/DoctorProfileModal"
 import { useTranslation } from "@/i18n/LanguageContext"
+import { API_URL } from "@/lib/api"
 
 export default function ComparePage() {
   const { t } = useTranslation();
@@ -34,7 +35,7 @@ export default function ComparePage() {
   const [service, setService] = useState<any>(null)
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/prices/${serviceId}?city=${encodeURIComponent(city)}`)
+    fetch(`${API_URL}/api/prices/${serviceId}?city=${encodeURIComponent(city)}`)
       .then(res => res.json())
       .then(data => {
         setPrices(data)
@@ -60,7 +61,7 @@ export default function ComparePage() {
     if (!clinicDoctors[clinicId]) {
       setLoadingDoctors(prev => ({ ...prev, [clinicId]: true }));
       try {
-        const res = await fetch(`http://localhost:8000/api/clinics/${clinicId}`);
+        const res = await fetch(`${API_URL}/api/clinics/${clinicId}`);
         const data = await res.json();
         setClinicDoctors(prev => ({ ...prev, [clinicId]: data.doctors || [] }));
       } catch (err) {

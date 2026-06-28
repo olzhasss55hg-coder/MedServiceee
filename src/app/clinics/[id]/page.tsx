@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, MapPin, Phone, Clock, Star, Map as MapIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { API_URL } from "@/lib/api";
 
 export default function ClinicDetailPage() {
   const params = useParams();
@@ -17,7 +18,7 @@ export default function ClinicDetailPage() {
     async function fetchClinic() {
       if (!params.id) return;
       try {
-        const res = await fetch(`http://localhost:8000/api/clinics/${params.id}`);
+        const res = await fetch(`${API_URL}/api/clinics/${params.id}`);
         if (!res.ok) {
           throw new Error("Clinic not found");
         }
