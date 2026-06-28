@@ -58,8 +58,8 @@ export default function ClinicDetailPage() {
 
   return (
     <div className="container mx-auto max-w-[1440px] px-4 py-8">
-      <button 
-        onClick={() => router.back()} 
+      <button
+        onClick={() => router.back()}
         className="flex items-center text-muted-foreground hover:text-primary mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -71,7 +71,7 @@ export default function ClinicDetailPage() {
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
             <h1 className="text-2xl font-bold mb-3">{clinic.name}</h1>
-            
+
             <div className="flex items-center gap-2 mb-6">
               <div className="flex items-center text-amber-500 font-semibold bg-amber-500/10 px-2.5 py-1 rounded-full text-sm">
                 <Star className="w-4 h-4 fill-current mr-1" />
@@ -90,7 +90,7 @@ export default function ClinicDetailPage() {
                   <p className="text-sm text-muted-foreground">{clinic.city}, {clinic.address}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div>
@@ -107,7 +107,7 @@ export default function ClinicDetailPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-8">
               {clinic.source_url ? (
                 <a href={clinic.source_url} target="_blank" rel="noopener noreferrer" className="block mb-4">
@@ -134,20 +134,20 @@ export default function ClinicDetailPage() {
         <div className="lg:col-span-2">
           <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden mb-6">
             <div className="flex border-b border-border bg-muted/20">
-              <button 
+              <button
                 onClick={() => setActiveTab('services')}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${activeTab === 'services' ? 'bg-white border-b-2 border-primary text-primary' : 'text-muted-foreground hover:bg-black/5'}`}
               >
                 Прайс-лист ({services.length})
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('doctors')}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${activeTab === 'doctors' ? 'bg-white border-b-2 border-primary text-primary' : 'text-muted-foreground hover:bg-black/5'}`}
               >
                 Врачи ({doctors.length})
               </button>
             </div>
-            
+
             <div className="divide-y divide-border">
               {activeTab === 'services' ? (
                 services.length > 0 ? (

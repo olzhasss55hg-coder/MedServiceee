@@ -23,7 +23,7 @@ export default function RegisterPage() {
       setError("Passwords do not match");
       return;
     }
-    
+
     setLoading(true);
     setError("");
 

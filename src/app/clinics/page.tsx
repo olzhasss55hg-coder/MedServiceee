@@ -26,15 +26,15 @@ export default function ClinicsPage() {
     }
     setExpandedClinicId(clinicId);
     if (!clinicDoctors[clinicId]) {
-      setLoadingDoctors(prev => ({...prev, [clinicId]: true}));
+      setLoadingDoctors(prev => ({ ...prev, [clinicId]: true }));
       try {
         const res = await fetch(`http://localhost:8000/api/clinics/${clinicId}`);
         if (res.ok) {
           const data = await res.json();
-          setClinicDoctors(prev => ({...prev, [clinicId]: data.doctors || []}));
+          setClinicDoctors(prev => ({ ...prev, [clinicId]: data.doctors || [] }));
         }
-      } catch(e) {}
-      setLoadingDoctors(prev => ({...prev, [clinicId]: false}));
+      } catch (e) { }
+      setLoadingDoctors(prev => ({ ...prev, [clinicId]: false }));
     }
   };
 
@@ -70,10 +70,10 @@ export default function ClinicsPage() {
             {locale === 'en' ? 'Find the nearest clinic and compare prices' : (locale === 'kk' ? 'Ең жақын клиниканы тауып, бағаларды салыстырыңыз' : 'Найдите ближайшую клинику и сравните цены')}
           </p>
         </div>
-        
+
         <div className="flex gap-3 w-full md:w-auto">
-          <select 
-            value={selectedCity} 
+          <select
+            value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
             className="px-4 py-2.5 rounded-full border border-border bg-card shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
           >
@@ -84,8 +84,8 @@ export default function ClinicsPage() {
           </select>
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={t('clinics.searchPlaceholder')}
               className="w-full pl-10 pr-4 py-2.5 rounded-full border border-border bg-card shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
@@ -101,7 +101,7 @@ export default function ClinicsPage() {
               {locale === 'en' ? 'Clinics list' : (locale === 'kk' ? 'Клиникалар тізімі' : 'Список клиник')} ({clinics.length})
             </h2>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {loading ? (
               <div className="p-8 text-center text-muted-foreground">{locale === 'en' ? 'Loading...' : (locale === 'kk' ? 'Жүктелуде...' : 'Загрузка клиник...')}</div>
@@ -136,9 +136,9 @@ export default function ClinicsPage() {
                     )}
                   </div>
                   <div className="mt-4 flex gap-2">
-                      <Button size="sm" variant="outline" className="w-full text-xs h-8" onClick={() => setSelectedClinicId(clinic.id)}>
-                        {locale === 'en' ? 'Details' : (locale === 'kk' ? 'Толығырақ' : 'Подробнее')}
-                      </Button>
+                    <Button size="sm" variant="outline" className="w-full text-xs h-8" onClick={() => setSelectedClinicId(clinic.id)}>
+                      {locale === 'en' ? 'Details' : (locale === 'kk' ? 'Толығырақ' : 'Подробнее')}
+                    </Button>
                     <Button variant="default" size="sm" className="w-full text-xs bg-primary/10 text-primary hover:bg-primary hover:text-white border-0 shadow-none" onClick={(e) => { e.stopPropagation(); setSelectedClinicId(clinic.id); }}>
                       <Navigation className="w-3 h-3 mr-1" />
                       Маршрут
@@ -154,8 +154,8 @@ export default function ClinicsPage() {
                       ) : clinicDoctors[clinic.id]?.length > 0 ? (
                         <div className="space-y-3">
                           {clinicDoctors[clinic.id].map(doc => (
-                            <div 
-                              key={doc.id} 
+                            <div
+                              key={doc.id}
                               onClick={(e) => { e.stopPropagation(); setSelectedDoctor(doc); }}
                               className="flex gap-3 p-3 bg-muted/30 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors"
                             >
@@ -187,10 +187,10 @@ export default function ClinicsPage() {
           <DynamicMap clinics={clinics} selectedClinicId={selectedClinicId} />
         </div>
       </div>
-      <DoctorProfileModal 
-        doctor={selectedDoctor} 
-        isOpen={selectedDoctor !== null} 
-        onClose={() => setSelectedDoctor(null)} 
+      <DoctorProfileModal
+        doctor={selectedDoctor}
+        isOpen={selectedDoctor !== null}
+        onClose={() => setSelectedDoctor(null)}
       />
     </div>
   );

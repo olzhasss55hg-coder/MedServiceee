@@ -34,7 +34,7 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
           const data = await res.json();
           setDoctors(data.doctors || []);
         }
-      } catch(e) {}
+      } catch (e) { }
       setLoadingDoctors(false);
     }
     setShowDoctors(!showDoctors);
@@ -57,7 +57,7 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
             {address}
           </div>
         </div>
-        
+
         <div className="flex flex-col md:items-end gap-2 w-full md:w-auto">
           <div className="flex flex-col items-end">
             <div className="text-2xl font-bold text-gradient">
@@ -73,7 +73,7 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
             )}
           </div>
           <div className="grid grid-cols-2 md:flex gap-2 w-full md:w-auto">
-            <Button 
+            <Button
               variant="outline"
               onClick={handleShowDoctors}
               className="w-full flex justify-center items-center gap-1.5 md:gap-2 px-2 md:px-4"
@@ -81,7 +81,7 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
               <Users className="w-4 h-4 shrink-0" />
               <span className="truncate">{t('search.doctors')}</span>
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowHistory(!showHistory)}
               className="w-full flex justify-center items-center gap-1.5 md:gap-2 px-2 md:px-4"
@@ -89,7 +89,7 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
               <Activity className="w-4 h-4 shrink-0" />
               <span className="truncate">{t('search.history')}</span>
             </Button>
-            <Button 
+            <Button
               onClick={() => window.open(sourceUrl, '_blank')}
               className="col-span-2 md:col-span-1 w-full flex justify-center items-center gap-2"
             >
@@ -115,8 +115,8 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
           ) : doctors.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {doctors.map(doc => (
-                <div 
-                  key={doc.id} 
+                <div
+                  key={doc.id}
                   onClick={() => setSelectedDoctor(doc)}
                   className="flex gap-4 p-4 border border-black/5 rounded-2xl bg-black/5 hover:bg-black/10 transition-colors cursor-pointer"
                 >
@@ -146,11 +146,11 @@ export function ClinicCard({ clinicId, clinicName, address, price, sourceUrl, la
           )}
         </div>
       )}
-      
-      <DoctorProfileModal 
-        doctor={selectedDoctor} 
-        isOpen={selectedDoctor !== null} 
-        onClose={() => setSelectedDoctor(null)} 
+
+      <DoctorProfileModal
+        doctor={selectedDoctor}
+        isOpen={selectedDoctor !== null}
+        onClose={() => setSelectedDoctor(null)}
       />
     </GlassCard>
   )

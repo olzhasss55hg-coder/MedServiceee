@@ -42,7 +42,7 @@ function SearchPageContent() {
   const router = useRouter()
   const initialQuery = searchParams.get("q") || ""
   const initialCity = searchParams.get("city") || "Алматы"
-  
+
   const [searchQuery, setSearchQuery] = useState(initialQuery)
   const [city, setCity] = useState(initialCity)
   const [results, setResults] = useState<SearchResult[]>([])
@@ -53,14 +53,14 @@ function SearchPageContent() {
     if (saved) {
       try {
         setFavorites(JSON.parse(saved))
-      } catch(e) {}
+      } catch (e) { }
     }
   }, [])
 
   const toggleFavorite = (result: SearchResult) => {
     const id = result.service.id
     setFavorites(prev => {
-      const newFavs = {...prev}
+      const newFavs = { ...prev }
       if (newFavs[id]) {
         delete newFavs[id]
       } else {
@@ -70,13 +70,13 @@ function SearchPageContent() {
       return newFavs
     })
   }
-  
+
   // Price filter states
   const [minPriceInput, setMinPriceInput] = useState("")
   const [maxPriceInput, setMaxPriceInput] = useState("")
   const [minPrice, setMinPrice] = useState<number | null>(null)
   const [maxPrice, setMaxPrice] = useState<number | null>(null)
-  
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -131,10 +131,10 @@ function SearchPageContent() {
   return (
     <div className="bg-background min-h-screen pt-4 pb-24">
       <div className="container mx-auto max-w-[1440px] px-4">
-        
+
         {/* Mobile Search & Filter Toggle */}
         <div className="lg:hidden flex gap-2 mb-6">
-          <Input 
+          <Input
             placeholder={t('search.searchPlaceholder')}
             icon={<Search className="w-5 h-5" />}
             value={searchQuery}
@@ -157,18 +157,18 @@ function SearchPageContent() {
             { label: t('search.xRay'), value: "Рентген" },
             { label: t('search.cbc'), value: "ОАК" }
           ].map(cat => (
-             <button 
-                key={cat.value}
-                onClick={() => { setSearchQuery(cat.value); router.push(`/search?q=${encodeURIComponent(cat.value)}&city=${encodeURIComponent(city)}`); }}
-                className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium border transition-colors ${searchQuery.toLowerCase().includes(cat.value.toLowerCase()) ? 'bg-primary text-white border-primary' : 'bg-white text-zinc-600 border-black/10 hover:border-primary/50'}`}
-             >
-               {cat.label}
-             </button>
+            <button
+              key={cat.value}
+              onClick={() => { setSearchQuery(cat.value); router.push(`/search?q=${encodeURIComponent(cat.value)}&city=${encodeURIComponent(city)}`); }}
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium border transition-colors ${searchQuery.toLowerCase().includes(cat.value.toLowerCase()) ? 'bg-primary text-white border-primary' : 'bg-white text-zinc-600 border-black/10 hover:border-primary/50'}`}
+            >
+              {cat.label}
+            </button>
           ))}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* Sidebar Filters */}
           <aside className="hidden lg:block w-72 shrink-0">
             <div className="sticky top-28 space-y-6 bg-white p-6 rounded-3xl border border-black/5 shadow-sm">
@@ -176,13 +176,13 @@ function SearchPageContent() {
                 <SlidersHorizontal className="w-5 h-5 text-primary" />
                 <h2 className="font-bold text-lg">{t('search.filters')}</h2>
               </div>
-              
+
               {/* City Filter */}
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-muted-foreground">{t('search.city')}</h3>
                 <div className="relative flex items-center bg-black/5 rounded-xl h-12 hover:bg-black/10 transition-colors">
                   <MapPin className="w-4 h-4 text-primary absolute left-3 pointer-events-none" />
-                  <select 
+                  <select
                     value={city}
                     onChange={(e) => {
                       setCity(e.target.value);
@@ -227,24 +227,24 @@ function SearchPageContent() {
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-muted-foreground">{t('search.price')}</h3>
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     placeholder={t('search.priceFrom')}
                     value={minPriceInput}
                     onChange={(e) => setMinPriceInput(e.target.value)}
-                    className="w-full bg-black/5 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" 
+                    className="w-full bg-black/5 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <span className="text-muted-foreground">-</span>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     placeholder={t('search.priceTo')}
                     value={maxPriceInput}
                     onChange={(e) => setMaxPriceInput(e.target.value)}
-                    className="w-full bg-black/5 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" 
+                    className="w-full bg-black/5 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </div>
-              
+
               <Button className="w-full mt-4" onClick={applyPriceFilter}>{t('search.apply')}</Button>
             </div>
           </aside>
@@ -254,7 +254,7 @@ function SearchPageContent() {
             <div className="hidden lg:block mb-6">
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <Input 
+                  <Input
                     placeholder={t('search.searchPlaceholder')}
                     icon={<Search className="w-5 h-5 text-primary" />}
                     value={searchQuery}
@@ -298,8 +298,8 @@ function SearchPageContent() {
                             <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded-md inline-block">
                               {result.service.category}
                             </span>
-                            <button 
-                              onClick={() => toggleFavorite(result)} 
+                            <button
+                              onClick={() => toggleFavorite(result)}
                               className={`p-1.5 rounded-full transition-colors ${favorites[result.service.id] ? 'bg-rose-50 text-rose-500' : 'bg-black/5 text-muted-foreground hover:bg-rose-50 hover:text-rose-500'}`}
                             >
                               <Heart className={`w-4 h-4 ${favorites[result.service.id] ? 'fill-rose-500 text-rose-500' : ''}`} />
@@ -313,14 +313,14 @@ function SearchPageContent() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500"></span> 
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
                         {t('search.bestOffer').replace('{count}', result.clinics_count.toString())}
                       </h3>
-                      
-                      <ClinicCard 
+
+                      <ClinicCard
                         clinicId={result.best_offer_clinic.id}
                         clinicName={result.best_offer_clinic.name}
                         address={result.best_offer_clinic.address}
@@ -328,7 +328,7 @@ function SearchPageContent() {
                         sourceUrl={result.best_offer_clinic.source_url}
                         lastUpdatedAt={result.last_updated_at}
                       />
-                      
+
                       <div className="pt-4 mt-4 border-t border-black/5">
                         <Link href={`/compare/${result.service.id}?city=${encodeURIComponent(city)}`}>
                           <Button variant="outline" className="w-full sm:w-auto ml-auto flex bg-blue-50 text-blue-600 border-transparent hover:bg-blue-600 hover:text-white transition-colors">

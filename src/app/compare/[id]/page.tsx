@@ -21,13 +21,13 @@ export default function ComparePage() {
   const [viewMode, setViewMode] = useState<"list" | "map" | "table">("list")
   const [selectedClinic, setSelectedClinic] = useState<string | null>(null)
   const [isBookingComplete, setIsBookingComplete] = useState(false)
-  
+
   const [expandedClinic, setExpandedClinic] = useState<string | null>(null)
   const [clinicDoctors, setClinicDoctors] = useState<Record<string, any[]>>({})
   const [loadingDoctors, setLoadingDoctors] = useState<Record<string, boolean>>({})
   const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
 
-  const [mapClinic, setMapClinic] = useState<{name: string, address: string} | null>(null)
+  const [mapClinic, setMapClinic] = useState<{ name: string, address: string } | null>(null)
 
   const [loading, setLoading] = useState(true)
   const [prices, setPrices] = useState<any[]>([])
@@ -54,19 +54,19 @@ export default function ComparePage() {
       setExpandedClinic(null);
       return;
     }
-    
+
     setExpandedClinic(clinicId);
-    
+
     if (!clinicDoctors[clinicId]) {
-      setLoadingDoctors(prev => ({...prev, [clinicId]: true}));
+      setLoadingDoctors(prev => ({ ...prev, [clinicId]: true }));
       try {
         const res = await fetch(`http://localhost:8000/api/clinics/${clinicId}`);
         const data = await res.json();
-        setClinicDoctors(prev => ({...prev, [clinicId]: data.doctors || []}));
+        setClinicDoctors(prev => ({ ...prev, [clinicId]: data.doctors || [] }));
       } catch (err) {
         console.error(err);
       } finally {
-        setLoadingDoctors(prev => ({...prev, [clinicId]: false}));
+        setLoadingDoctors(prev => ({ ...prev, [clinicId]: false }));
       }
     }
   };
@@ -77,7 +77,7 @@ export default function ComparePage() {
   }
 
   const handleRoute = (clinicName: string, address: string) => {
-    setMapClinic({name: clinicName, address})
+    setMapClinic({ name: clinicName, address })
   }
 
   const openMap = (provider: '2gis' | 'google') => {
@@ -111,17 +111,17 @@ export default function ComparePage() {
   const sortedPrices = [...prices].sort((a, b) => a.price_kzt - b.price_kzt);
   const minPrice = sortedPrices.length > 0 ? sortedPrices[0].price_kzt : 0;
   const maxPrice = sortedPrices.length > 0 ? sortedPrices[sortedPrices.length - 1].price_kzt : 0;
-  
+
   const clinicsList = sortedPrices.map(p => {
     const rating = p.clinic.rating || 4.5;
     const price = p.price_kzt;
-    
+
     // AI Score calculation: Price / Quality Ratio
     // We normalize rating (0 to 5) and price (min to max). 
     // High rating is good, low price is good.
-    const normalizedRating = rating / 5.0; 
+    const normalizedRating = rating / 5.0;
     const normalizedPrice = maxPrice > minPrice ? 1 - ((price - minPrice) / (maxPrice - minPrice)) : 1;
-    
+
     // Weight: 60% rating (quality), 40% price. Just an example AI formula
     const aiScore = (normalizedRating * 0.6) + (normalizedPrice * 0.4);
 
@@ -132,12 +132,14 @@ export default function ComparePage() {
       rating: rating,
       reviews: p.clinic.reviews_count || 10,
       address: p.clinic.address,
-      distance: "Около 2-3 км", 
+      distance: "Около 2-3 км",
       updated: new Date(p.parsed_at || new Date()).toLocaleDateString('ru-RU'),
       savings: maxPrice - price,
       lat: p.clinic.latitude,
       lng: p.clinic.longitude,
-      aiScore: aiScore
+      aiScore: aiScore,
+      isBestOffer: false,
+      isAiChoice: false
     }
   });
 
@@ -158,38 +160,38 @@ export default function ComparePage() {
           <Link href={`/search?q=${encodeURIComponent(service?.name_raw || '')}&city=${encodeURIComponent(city)}`} className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-6">
             <ChevronLeft className="w-4 h-4 mr-1" /> {t('compare.backToResults')}
           </Link>
-          
+
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground">{service?.name_raw}</h1>
-                <Badge variant="ai" className="hidden sm:flex text-sm py-1.5"><Activity className="w-4 h-4 mr-1"/> AI Unified</Badge>
+                <Badge variant="ai" className="hidden sm:flex text-sm py-1.5"><Activity className="w-4 h-4 mr-1" /> AI Unified</Badge>
               </div>
               <p className="text-muted-foreground max-w-2xl">
                 {t('compare.shownOffers')} {city}. {t('compare.totalFound')}: {clinicsList.length}.
               </p>
             </div>
-            
+
             <div className="flex items-center gap-2 bg-black/5 p-1 rounded-xl">
-              <Button 
-                variant={viewMode === "list" ? "default" : "ghost"} 
-                size="sm" 
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setViewMode("list")}
                 className={viewMode === "list" ? "shadow-sm" : ""}
               >
                 {t('compare.list')}
               </Button>
-              <Button 
-                variant={viewMode === "table" ? "default" : "ghost"} 
-                size="sm" 
+              <Button
+                variant={viewMode === "table" ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setViewMode("table")}
                 className={viewMode === "table" ? "shadow-sm" : ""}
               >
                 <Table2 className="w-4 h-4 mr-2" /> {t('compare.table')}
               </Button>
-              <Button 
-                variant={viewMode === "map" ? "default" : "ghost"} 
-                size="sm" 
+              <Button
+                variant={viewMode === "map" ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setViewMode("map")}
                 className={viewMode === "map" ? "shadow-sm" : ""}
               >
@@ -200,20 +202,20 @@ export default function ComparePage() {
         </div>
       </div>
 
-      <DoctorProfileModal 
-        doctor={selectedDoctor} 
-        isOpen={selectedDoctor !== null} 
-        onClose={() => setSelectedDoctor(null)} 
+      <DoctorProfileModal
+        doctor={selectedDoctor}
+        isOpen={selectedDoctor !== null}
+        onClose={() => setSelectedDoctor(null)}
       />
 
       <div className="container mx-auto max-w-[1440px] px-4 pt-8">
-        
+
         {viewMode === "list" ? (
           <div className="flex flex-col lg:flex-row gap-8">
-            
+
             {/* List View Main Content */}
             <div className="flex-1 space-y-6">
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* AI Choice Highlight */}
                 {aiChoiceClinic && (
@@ -232,7 +234,7 @@ export default function ComparePage() {
                         <p className="text-sm text-muted-foreground flex items-center mb-6">
                           <MapPin className="w-3.5 h-3.5 mr-1" /> {aiChoiceClinic.address}
                         </p>
-                        
+
                         <div className="flex items-end justify-between mt-auto">
                           <div>
                             <div className="flex items-center gap-1 text-sm font-medium mb-1">
@@ -268,7 +270,7 @@ export default function ComparePage() {
                         <p className="text-sm text-muted-foreground flex items-center mb-6">
                           <MapPin className="w-3.5 h-3.5 mr-1" /> {bestPriceClinic.address}
                         </p>
-                        
+
                         <div className="flex items-end justify-between mt-auto">
                           <div>
                             <div className="flex items-center gap-1 text-sm font-medium mb-1">
@@ -291,8 +293,8 @@ export default function ComparePage() {
               {/* Table / List Header */}
               <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-white rounded-xl border border-black/5 text-sm font-semibold text-muted-foreground mt-8">
                 <div className="col-span-4">{t('compare.clinic')}</div>
-                <div className="col-span-2 flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"><ArrowUpDown className="w-4 h-4"/> {t('compare.price')}</div>
-                <div className="col-span-2 flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"><ArrowUpDown className="w-4 h-4"/> {t('compare.rating')}</div>
+                <div className="col-span-2 flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"><ArrowUpDown className="w-4 h-4" /> {t('compare.price')}</div>
+                <div className="col-span-2 flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"><ArrowUpDown className="w-4 h-4" /> {t('compare.rating')}</div>
                 <div className="col-span-2">{t('compare.address')}</div>
                 <div className="col-span-2 text-right">{t('compare.action')}</div>
               </div>
@@ -306,7 +308,7 @@ export default function ComparePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                   >
-                    <GlassCard 
+                    <GlassCard
                       className={`p-4 md:p-6 bg-white hover:border-primary/30 transition-colors cursor-pointer ${expandedClinic === clinic.id ? 'border-primary/50 ring-1 ring-primary/20' : ''}`}
                       onClick={() => toggleDoctors(clinic.id)}
                     >
@@ -315,8 +317,8 @@ export default function ComparePage() {
                         <div className="col-span-4 mb-4 md:mb-0">
                           <h4 className="font-bold text-lg flex items-center gap-2">
                             {clinic.name}
-                            {clinic.isAiChoice && <BrainCircuit className="w-4 h-4 text-indigo-500" title={t('compare.aiChoice')} />}
-                            {clinic.isBestOffer && <Flame className="w-4 h-4 text-orange-500" title={t('compare.lowestPrice')} />}
+                            {clinic.isAiChoice && <span title={t('compare.aiChoice')}><BrainCircuit className="w-4 h-4 text-indigo-500" /></span>}
+                            {clinic.isBestOffer && <span title={t('compare.lowestPrice')}><Flame className="w-4 h-4 text-orange-500" /></span>}
                           </h4>
                           <div className="flex items-center text-xs text-muted-foreground mt-1">
                             <CheckCircle2 className="w-3 h-3 text-green-500 mr-1" /> {t('compare.updated')} {clinic.updated}
@@ -354,9 +356,9 @@ export default function ComparePage() {
 
                       {/* Expandable Doctors Section */}
                       {expandedClinic === clinic.id && (
-                        <motion.div 
-                          initial={{ height: 0, opacity: 0 }} 
-                          animate={{ height: 'auto', opacity: 1 }} 
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
                           className="mt-6 pt-6 border-t border-black/5 overflow-hidden"
                         >
                           <h5 className="font-bold text-sm text-muted-foreground mb-4 uppercase tracking-wider">{t('search.doctors')}</h5>
@@ -367,8 +369,8 @@ export default function ComparePage() {
                           ) : clinicDoctors[clinic.id] && clinicDoctors[clinic.id].length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {clinicDoctors[clinic.id].map((doc: any) => (
-                                <div 
-                                  key={doc.id} 
+                                <div
+                                  key={doc.id}
                                   onClick={(e) => { e.stopPropagation(); setSelectedDoctor(doc); }}
                                   className="flex gap-4 p-4 border border-black/5 rounded-2xl bg-black/5 hover:bg-black/10 transition-colors cursor-pointer"
                                 >
@@ -411,7 +413,7 @@ export default function ComparePage() {
         ) : viewMode === "map" ? (
           <div className="h-[70vh] w-full relative rounded-3xl overflow-hidden border border-black/10 shadow-lg bg-[#e5e3df]">
             <div className="absolute inset-0 bg-[url('https://maps.gstatic.com/mapfiles/api-3/images/cb_scout2.png')] opacity-10"></div>
-            
+
             <div className="absolute top-4 left-4 bg-white p-4 rounded-2xl shadow-xl z-10 w-80">
               <Input placeholder="Искать рядом..." icon={<Search className="w-4 h-4" />} className="h-10 mb-4" />
             </div>
@@ -443,7 +445,7 @@ export default function ComparePage() {
                 </div>
               </motion.div>
             )}
-            
+
           </div>
         ) : viewMode === "table" ? (
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5 overflow-x-auto">
@@ -478,7 +480,7 @@ export default function ComparePage() {
                     </td>
                     <td className="py-4 px-6 text-muted-foreground text-sm">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 shrink-0" /> 
+                        <MapPin className="w-4 h-4 shrink-0" />
                         <span>{clinic.address} <span className="opacity-70">({clinic.distance})</span></span>
                       </div>
                     </td>
@@ -498,9 +500,9 @@ export default function ComparePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
             <button onClick={() => setSelectedClinic(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-black">
-              <ChevronLeft className="w-6 h-6 rotate-180" /> 
+              <ChevronLeft className="w-6 h-6 rotate-180" />
             </button>
-            
+
             {isBookingComplete ? (
               <div className="text-center py-6">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -519,7 +521,7 @@ export default function ComparePage() {
                   <p className="text-sm text-muted-foreground mb-1">Выбрана клиника:</p>
                   <p className="font-bold">{selectedClinic}</p>
                 </div>
-                
+
                 <div className="space-y-4 mb-8">
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Ваше имя</label>
@@ -530,7 +532,7 @@ export default function ComparePage() {
                     <Input placeholder="+7 (777) 000-00-00" type="tel" />
                   </div>
                 </div>
-                
+
                 <Button className="w-full h-12 text-lg" onClick={() => setIsBookingComplete(true)}>
                   Оставить заявку
                 </Button>
@@ -545,18 +547,18 @@ export default function ComparePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
             <button onClick={() => setMapClinic(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-black">
-              <ChevronLeft className="w-6 h-6 rotate-180" /> 
+              <ChevronLeft className="w-6 h-6 rotate-180" />
             </button>
-            
+
             <h2 className="text-2xl font-bold mb-2">{t('routeModal.title')}</h2>
             <p className="text-muted-foreground mb-6">
               {t('routeModal.desc')} <strong>{mapClinic.name}</strong>.
             </p>
-            
+
             <div className="space-y-3">
-              <Button 
-                variant="outline" 
-                className="w-full h-14 justify-start text-lg font-medium border-2 hover:border-primary/50 hover:bg-primary/5" 
+              <Button
+                variant="outline"
+                className="w-full h-14 justify-start text-lg font-medium border-2 hover:border-primary/50 hover:bg-primary/5"
                 onClick={() => openMap('2gis')}
               >
                 <div className="w-8 h-8 rounded bg-[#a4cd39] flex items-center justify-center mr-3">
@@ -564,9 +566,9 @@ export default function ComparePage() {
                 </div>
                 {t('routeModal.open2gis')}
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full h-14 justify-start text-lg font-medium border-2 hover:border-primary/50 hover:bg-primary/5" 
+              <Button
+                variant="outline"
+                className="w-full h-14 justify-start text-lg font-medium border-2 hover:border-primary/50 hover:bg-primary/5"
                 onClick={() => openMap('google')}
               >
                 <div className="w-8 h-8 rounded bg-[#4285F4] flex items-center justify-center mr-3">

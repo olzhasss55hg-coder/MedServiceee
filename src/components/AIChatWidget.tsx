@@ -50,17 +50,17 @@ export function AIChatWidget() {
       });
 
       const data = await res.json();
-      
-      setMessages(prev => [...prev, { 
-        id: (Date.now() + 1).toString(), 
-        role: "assistant", 
-        content: data.reply || "Кешіріңіз, сұрағыңызға жауап таба алмадым." 
+
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: data.reply || "Кешіріңіз, сұрағыңызға жауап таба алмадым."
       }]);
     } catch (err) {
-      setMessages(prev => [...prev, { 
-        id: (Date.now() + 1).toString(), 
-        role: "assistant", 
-        content: "Қате кетті. Бэкенд қосылып тұрғанына көз жеткізіңіз." 
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "Қате кетті. Бэкенд қосылып тұрғанына көз жеткізіңіз."
       }]);
     } finally {
       setIsLoading(false);
@@ -77,7 +77,7 @@ export function AIChatWidget() {
       html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
       // Link handling
       html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-primary underline font-semibold hover:text-blue-700 transition-colors">$1</a>');
-      
+
       return (
         <span key={i}>
           <span dangerouslySetInnerHTML={{ __html: html }} />
@@ -90,7 +90,7 @@ export function AIChatWidget() {
   return (
     <>
       {/* Chat Button */}
-      <motion.div 
+      <motion.div
         className="fixed bottom-6 right-6 z-50"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}

@@ -58,7 +58,7 @@ export default function PriceChart({ data }: PriceChartProps) {
             />
             <Tooltip 
               contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-              formatter={(value: number) => [`${value} ₸`, 'Цена']}
+              formatter={(value: any) => [`${value} ₸`, 'Цена']}
               labelStyle={{ color: '#71717a', marginBottom: '4px' }}
             />
             <Line 
